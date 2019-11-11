@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":"async","transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="用 Typescript 写个状态机有限状态机，是常用的一种编程范式。游戏领域和编译器领域等工作的小伙伴，应该很常用的了。如果不熟悉，那咱们先来看看状态机是什么。 状态机假设有这样一个需求在介绍状态机之前，假设有这样一个需求：咱们在开发一款打斗类游戏，游戏里有一个主角，咱们要通过键盘控制主角的行为。主角可以站立、蹲着、跳跃，这些行为的流程如下：  总结一下：  通过键盘按钮主角的行为； 主角的行为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用 Typescript 写个状态机">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;11&#x2F;%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA&#x2F;index.html">
+<meta property="og:site_name" content="小菜技术路">
+<meta property="og:description" content="用 Typescript 写个状态机有限状态机，是常用的一种编程范式。游戏领域和编译器领域等工作的小伙伴，应该很常用的了。如果不熟悉，那咱们先来看看状态机是什么。 状态机假设有这样一个需求在介绍状态机之前，假设有这样一个需求：咱们在开发一款打斗类游戏，游戏里有一个主角，咱们要通过键盘控制主角的行为。主角可以站立、蹲着、跳跃，这些行为的流程如下：  总结一下：  通过键盘按钮主角的行为； 主角的行为">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;NathanLi&#x2F;_private_images_repository&#x2F;master&#x2F;images&#x2F;state_machine&#x2F;hero_states.png">
+<meta property="og:updated_time" content="2019-11-11T03:49:14.059Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;NathanLi&#x2F;_private_images_repository&#x2F;master&#x2F;images&#x2F;state_machine&#x2F;hero_states.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>用 Typescript 写个状态机 | 小菜技术路</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小菜技术路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="听榆大叔">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小菜技术路">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用 Typescript 写个状态机
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2019-11-11 11:48:51 / 修改时间：11:49:14" itemprop="dateCreated datePublished" datetime="2019-11-11T11:48:51+08:00">2019-11-11</time>
+            </span>
+
+          
+            <span id="/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/" class="post-meta-item leancloud_visitors" data-flag-title="用 Typescript 写个状态机" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="用-Typescript-写个状态机"><a href="#用-Typescript-写个状态机" class="headerlink" title="用 Typescript 写个状态机"></a>用 Typescript 写个状态机</h1><p>有限状态机，是常用的一种编程范式。游戏领域和编译器领域等工作的小伙伴，应该很常用的了。如果不熟悉，那咱们先来看看状态机是什么。</p>
+<h2 id="状态机"><a href="#状态机" class="headerlink" title="状态机"></a>状态机</h2><h3 id="假设有这样一个需求"><a href="#假设有这样一个需求" class="headerlink" title="假设有这样一个需求"></a>假设有这样一个需求</h3><p>在介绍状态机之前，假设有这样一个需求：咱们在开发一款打斗类游戏，游戏里有一个主角，咱们要通过键盘控制主角的行为。主角可以站立、蹲着、跳跃，这些行为的流程如下：</p>
+<p><img src="https://raw.githubusercontent.com/NathanLi/_private_images_repository/master/images/state_machine/hero_states.png" alt="英雄行为"></p>
+<p>总结一下：</p>
+<ol>
+<li>通过键盘按钮主角的行为；</li>
+<li>主角的行为包括：站立、蹲着、跳跃；</li>
+<li>站立(按S) -&gt; 蹲着；蹲着(按空格) -&gt; 站立；</li>
+<li>站立(按空格) -&gt; 跳跃；跳跃 -&gt; 站立；</li>
+</ol>
+<p>很明显，“蹲着” 不能直接到 “跳跃”。</p>
+<p>接下来，按照一般的思路，实现这个需求：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Hero &#123;</span><br><span class="line">    isStand = <span class="literal">false</span>;   <span class="comment">// 是否是站立</span></span><br><span class="line">    isKneel = <span class="literal">false</span>;   <span class="comment">// 是否是蹲着</span></span><br><span class="line">    isLeap = <span class="literal">false</span>;    <span class="comment">// 是否在空中</span></span><br><span class="line"></span><br><span class="line">    handleInput(event: <span class="built_in">any</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (event == <span class="string">'S'</span>) &#123; <span class="comment">// 按下 'S' 键</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isStand) &#123;   <span class="comment">// 如果是站立，则蹲下</span></span><br><span class="line">                <span class="keyword">this</span>.toKneel();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'Space'</span>) &#123; <span class="comment">// 按下 ‘空格’ 锋</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isStand) &#123;    <span class="comment">// 如果是站立，则跳起</span></span><br><span class="line">                <span class="keyword">this</span>.jump();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.isKneel) &#123;  <span class="comment">// 如果是蹲着，则站起</span></span><br><span class="line">                <span class="keyword">this</span>.standup();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'down'</span>) &#123; <span class="comment">// 下落事件</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isLeap) &#123;  <span class="comment">// 如果在空中，则站起</span></span><br><span class="line">                <span class="keyword">this</span>.land();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    toKneel() &#123;</span><br><span class="line">        <span class="comment">// ... 蹲下</span></span><br><span class="line">        <span class="keyword">this</span>.isStand = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">this</span>.isKneel = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    jump() &#123;</span><br><span class="line">        <span class="comment">// ... 跳起来</span></span><br><span class="line">        <span class="keyword">this</span>.isStand = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">this</span>.isLeap = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    standup() &#123;</span><br><span class="line">        <span class="comment">// ... 站起来</span></span><br><span class="line">        <span class="keyword">this</span>.isStand = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">this</span>.isKneel = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    land() &#123;</span><br><span class="line">        <span class="comment">// ... 落地</span></span><br><span class="line">        <span class="keyword">this</span>.isStand = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">this</span>.isLeap = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中，我们使用 <code>isXXX</code> 变量来标识是当前的状态。在输入事件处理方法中，根据 <code>状态</code> 和 <code>event</code> 调用相应的方法。</p>
+<p>现在一切都很完美，可以泡杯绿茶好好享受一下了。</p>
+<p>但还没喝到五分钟，产品小姐姐跑到你的身边，“为了不使英雄这么单调，我给他加了些需求。包括行走、跑、二段跳、三段跳”，小姐姐看着你甜甜地说道。于是只好将手中杯子放下，敲起了键盘。</p>
+<p>现在新增了四个行为：“行走、跑、二段跳、三段跳”</p>
+<p>咱们如下实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Hero &#123;</span><br><span class="line">    isStand = <span class="literal">false</span>;   <span class="comment">// 是否是站立</span></span><br><span class="line">    isKneel = <span class="literal">false</span>;   <span class="comment">// 是否是蹲着</span></span><br><span class="line">    isLeap = <span class="literal">false</span>;    <span class="comment">// 是否在空中</span></span><br><span class="line">    isWalking = <span class="literal">false</span>; <span class="comment">// 是否在行走</span></span><br><span class="line">    isRunning = <span class="literal">false</span>; <span class="comment">// 是否在跑</span></span><br><span class="line">    isLeapTwo = <span class="literal">false</span>; <span class="comment">// 是否是二段跳</span></span><br><span class="line">    isLeapThree = <span class="literal">false</span>; <span class="comment">// 是否是三段跳</span></span><br><span class="line"></span><br><span class="line">    handleInput(event: <span class="built_in">any</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (event == <span class="string">'S'</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isStand) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toKneel();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'DA'</span> || event == <span class="string">'DD'</span>) &#123; <span class="comment">// 按下 A 或 D 键</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isStand) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toWalk();  <span class="comment">// 如果站立，则行走</span></span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.isWalking) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toRunning();  <span class="comment">// 如果正在跑，则行走</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'UA'</span> || event == <span class="string">'UD'</span>) &#123; <span class="comment">// 松开 A 或 D 键</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isWalking || <span class="keyword">this</span>.isRunning) &#123;</span><br><span class="line">                <span class="keyword">this</span>.standup();   <span class="comment">// 如果是正在行走 或 跑，则到站立</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;  <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'Space'</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isStand) &#123;</span><br><span class="line">                <span class="keyword">this</span>.jump();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.isLeap &amp;&amp; !<span class="keyword">this</span>.isLeapTwo &amp;&amp; !<span class="keyword">this</span>.isLeapThree) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toLeapTwo(); <span class="comment">// 如果正在空中，则进入二段跳</span></span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.isLeapTwo) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toLeapThree(); <span class="comment">// 如果正在二段跳，则进入三段跳</span></span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.isKneel) &#123;</span><br><span class="line">                <span class="keyword">this</span>.standup();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'down'</span>) &#123; <span class="comment">// 下落事件</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isLeap || <span class="keyword">this</span>.isLeapTwo || <span class="keyword">this</span>.isLeapThree) &#123;</span><br><span class="line">                <span class="keyword">this</span>.land();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码写到一半，小姐姐又过来了：“要给英雄加上技能，有的技能要在站着时才能放，有的要在空中才能放，还有的技能要续能…”。想想这些需求吧，如果我们继续按照上面的代码那样处理，代码会是一个什么样的状况？无数的状态变量，深得可怕的分支，一大堆的 bug …</p>
+<h3 id="用状态机实现这个需求"><a href="#用状态机实现这个需求" class="headerlink" title="用状态机实现这个需求"></a>用状态机实现这个需求</h3><p>状态机适合处理这种多状态的需求。可以用 <code>enum</code> 将各状态定义出来，再使用根据这些状态来进行处理：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> EHeroStatus &#123;</span><br><span class="line">    Stand,</span><br><span class="line">    Kneel,</span><br><span class="line">    Walking,</span><br><span class="line">    Running,</span><br><span class="line">    Leap,</span><br><span class="line">    LeapTwo,</span><br><span class="line">    LeapThree,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码将英雄的状态都用枚举列出来了，现在根据这些状态再来看看处理的代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Hero &#123;</span><br><span class="line">    status: EHeroStatus;</span><br><span class="line"></span><br><span class="line">    handleInput(event: <span class="built_in">any</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.status == EHeroStatus.Stand) &#123;</span><br><span class="line">            <span class="keyword">if</span> (event == <span class="string">'S'</span>) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toKneel();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'DA'</span> || event == <span class="string">'DD'</span>) &#123;</span><br><span class="line">                <span class="keyword">this</span>.toWalk();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event == <span class="string">'Space'</span>) &#123;</span><br><span class="line">                <span class="keyword">this</span>.jump();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里将各类状态分开，再处理各类输入的事件。</p>
+<p>别看这里改动不大，但成功地将复杂度降低了不少，再每一个状态中，只需简单考虑事件与下一个状态的转换关系即可。当然，这里可以将状态封装成类：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> HeroState &#123;</span><br><span class="line">    handInput(hero: Hero, input: Input): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> StandState <span class="keyword">implements</span> HeroState &#123;</span><br><span class="line">    handInput(hero: Hero, input: Input) &#123;</span><br><span class="line">        <span class="keyword">if</span> (input == <span class="string">'S'</span>) &#123;</span><br><span class="line">            hero.toState(<span class="keyword">new</span> KneelState());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (input == <span class="string">'DA'</span> || input == <span class="string">'DD'</span>) &#123;</span><br><span class="line">            hero.toState(<span class="keyword">new</span> WalkState());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (input == <span class="string">'Space'</span>) &#123;</span><br><span class="line">            hero.toState(<span class="keyword">new</span> SpaceState());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> KneelState <span class="keyword">implements</span> HeroState ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Hero &#123;</span><br><span class="line">    <span class="keyword">private</span> state: HeroState;</span><br><span class="line"></span><br><span class="line">    handleInput(input: Input) &#123;</span><br><span class="line">        <span class="keyword">this</span>.state.handInput(<span class="keyword">this</span>, input);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    toState(state: HeroState) &#123;</span><br><span class="line">        <span class="keyword">this</span>.state = state;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中，<code>Hero</code> 类的 <code>handleInput</code> 方法清晰明了，内部的逻辑已经封装到那些状态类内部了。</p>
+<p>以上，就是一个简单的状态机了。</p>
+<h2 id="Typescript-实现"><a href="#Typescript-实现" class="headerlink" title="Typescript 实现"></a>Typescript 实现</h2><p><code>Typescript</code> 是一门像极了 <code>Java</code> 的动态语言，可它本质上，还是 <code>Javascript</code>。在写这个状态机库之前，我们先整理一下需求，即想好库应该写成什么样子：</p>
+<ol>
+<li>先定个名字。嗯，就叫 <code>StateMachine</code> 吧；</li>
+<li>抽象状态。上面第二种状态机代码实现中，将每一种状态都抽象成类，这样处理，会将 <code>状态</code> 与 <code>逻辑</code> 完全耦合在一起，难以复用。所以将 <code>状态</code> 抽象出来；</li>
+<li>抽象状态转换时的行为。上面第一种状态机代码实现中，就是将状态定义为枚举，但在其业务逻辑却混在一起，所以需要将这一部分抽象出来；</li>
+<li>状态转换验证。状态间的转换是有一定规则的，比如二段跳状态，其前置状态必定是跳跃状态，所以需要有一个验证机制；</li>
+<li>‘*’ 支持。有时不希望转换被前置条件限制，比如：重置功能。</li>
+</ol>
+<h3 id="1-State"><a href="#1-State" class="headerlink" title="1. State"></a>1. State</h3><p>状态。在咱们这里，不需要做任何限制，直接以模板参数表示即可。</p>
+<h3 id="2-Transition"><a href="#2-Transition" class="headerlink" title="2. Transition"></a>2. Transition</h3><p>状态机，主要在于状态之间的转换。首先，我们将状态间的转换抽象出来。把 <code>状态转换</code> 定义为 <code>Transition</code>。转换的数据成员包括：来源状态（即上一个状态）、去向（转换后的状态），再加一个转换触发时的回调，这样就提供给外部进行逻辑处理的机会。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 状态转换描述接口 */</span></span><br><span class="line"><span class="keyword">interface</span> ITransitionDir&lt;State&gt; &#123;</span><br><span class="line">    <span class="comment">/** 来源状态，可以是 1 到 N 状态，'*' 表示任何状态 */</span></span><br><span class="line">    <span class="keyword">from</span>: State | State[] | <span class="string">'*'</span>;</span><br><span class="line">    <span class="comment">/** 转换后的目标状态 */</span></span><br><span class="line">    to: State;</span><br><span class="line">    <span class="comment">/** 转换触发时的回调 */</span></span><br><span class="line">    onTransition?: <span class="function">(<span class="params"><span class="keyword">from</span>: State, to: State</span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了表示方便，可以导出一个构建函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">BuildTransition</span>&lt;<span class="title">State</span>&gt;(<span class="params"><span class="keyword">from</span>: State | State[] | '*', to: State, onTransition?: (<span class="keyword">from</span>: State, to: State) =&gt; <span class="built_in">void</span></span>): <span class="title">ITransitionDir</span>&lt;<span class="title">State</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="keyword">from</span>, to, onTransition&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-初始化条件"><a href="#3-初始化条件" class="headerlink" title="3. 初始化条件"></a>3. 初始化条件</h3><p>这些条件是需要由用户提供的。基本条件有两个：</p>
+<ol>
+<li>初始状态；</li>
+<li>转换对象。</li>
+</ol>
+<p>用代码示例为：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> STOptions&lt;State&gt; &#123;</span><br><span class="line">    init: State;</span><br><span class="line">    transitions: &#123;</span><br><span class="line">        transName1: ITransitionDir&lt;State&gt;;</span><br><span class="line">        transName2: ITransitionDir&lt;State&gt;;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际上，这些数据描述了状态机的数据的流向。我们的在此要实现的状态机代码本质上是对这些数据的自驱动。上面的这个接口有一个问题：<code>transitions</code> 对象里的 <code>keys</code> ，即状态转换的名字应该是由用户定义的，如上面的代码直接给出名字，明显不合理。还好 <code>typescript</code> 的模版功能非常强大，它能将某个对象里所有已知的属性名展开：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> IDemo&lt;T&gt; = &#123;</span><br><span class="line">    [P <span class="keyword">in</span> keyof T]: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的代码意思就是将 <code>T</code> 中的属性依次取出，并且其类型为 <code>string</code>。如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> IA &#123;</span><br><span class="line">    a: <span class="built_in">number</span>;</span><br><span class="line">    b: <span class="built_in">string</span>;</span><br><span class="line">    c: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> b: IDemo&lt;IA&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>此时变量 <code>b</code> 的类型是：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">inetface TypeB &#123;</span><br><span class="line">    a: <span class="built_in">string</span>;</span><br><span class="line">    b: <span class="built_in">string</span>;</span><br><span class="line">    c: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用这个方便的特性，我们再定义一次 <code>STOptions</code> ：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">type ITransitions&lt;T, State&gt; = &#123;</span><br><span class="line">    [P in keyof T]: ITransitionDir&lt;State&gt; | ITransitionDir&lt;State&gt;[];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface STOptions&lt;T, State&gt; &#123;</span><br><span class="line">    init: State;</span><br><span class="line">    transitions: ITransitions&lt;T, State&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-定义类"><a href="#4-定义类" class="headerlink" title="4. 定义类"></a>4. 定义类</h3><p>现在可以定义类了，先利用已经的信息将框架定义出来：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> StateMachine&lt;T, State&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(<span class="params">option: STOptions&lt;T, State&gt;</span>) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那咱们应该如何来进行状态转换呢？最方便的当然是使用用户自己定义的名字啦，我们可以再使用上面那个套路：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> TransitionCall&lt;T&gt; = &#123;</span><br><span class="line">    [P <span class="keyword">in</span> keyof T]: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> StateMachine&lt;T, State&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> _transitions: TransitionCall&lt;T&gt;;</span><br><span class="line">    <span class="keyword">private</span> _curState: State;</span><br><span class="line">    <span class="keyword">private</span> _originTransitions: ITransitions&lt;T, State&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>(<span class="params">option: STOptions&lt;T, State&gt;</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123;init, transitions&#125; = option;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._curState = init;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">this</span>.setupTransitions(transitions);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> setupTransitions(transitions: ITransitions&lt;T, State&gt;) &#123;</span><br><span class="line">        <span class="keyword">this</span>._originTransitions = transitions;</span><br><span class="line">        <span class="keyword">this</span>._transitions = &#123;&#125; <span class="keyword">as</span> <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">Object</span>.keys(transitions).forEach(<span class="function"><span class="params">k</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">const</span> key = k <span class="keyword">as</span> keyof T;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> value: ITransitionDir&lt;State&gt; | ITransitionDir&lt;State&gt;[] = transitions[key];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>._transitions[key] = <span class="function">(<span class="params">(<span class="params"></span>) =&gt; &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="comment">//进行状态转换</span></span></span></span><br><span class="line"><span class="function"><span class="params">                ...</span></span></span><br><span class="line"><span class="function"><span class="params">            &#125;</span>);</span></span><br><span class="line"><span class="function">        &#125;);</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="params">transition</span><span class="params">()</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="params">return</span> <span class="params">this</span>._<span class="params">transitions</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在可以这么用了：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">enum</span> EQiuActionStatus &#123;</span><br><span class="line">    None = <span class="string">'None'</span>,</span><br><span class="line">    PreAction = <span class="string">'PreAction'</span>,</span><br><span class="line">    MyTurn = <span class="string">'MyTurn'</span>,</span><br><span class="line">    Standup = <span class="string">'Standup'</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> option = &#123;</span><br><span class="line">    init: EQiuActionStatus.None,</span><br><span class="line">    transitions: &#123;</span><br><span class="line">        step: [</span><br><span class="line">            BuildTransition(EQiuActionStatus.None, EQiuActionStatus.PreAction),</span><br><span class="line">            BuildTransition(EQiuActionStatus.PreAction, EQiuActionStatus.MyTurn),</span><br><span class="line">            BuildTransition(EQiuActionStatus.MyTurn, EQiuActionStatus.Standup),</span><br><span class="line">            BuildTransition(EQiuActionStatus.Standup, EQiuActionStatus.None),</span><br><span class="line">        ],</span><br><span class="line">        reset: BuildTransition(<span class="string">'*'</span>, EQiuActionStatus.None, <span class="function">(<span class="params"><span class="keyword">from</span>, to</span>) =&gt;</span> <span class="built_in">console</span>.log(<span class="keyword">from</span>, to)),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> fsm = <span class="keyword">new</span> StateMachine(option);</span><br><span class="line">fsm.transition().step();</span><br><span class="line">fsm.transition().reset();</span><br></pre></td></tr></table></figure>
+
+<p>现在来给这个类添砖加瓦：</p>
+<p>一. 需要能获取到当前的状态：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> StateMachine&lt;T, State&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/** 获取当前状态 */</span></span><br><span class="line">    state() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._curState;</span><br><span class="line">    &#125;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>二. 状态转换是有前提的，所以需要一个方法，判断能不能进行转换：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> StateMachine&lt;T, State&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/** 是否可以进行 `t` 转换 */</span></span><br><span class="line">    can(t: keyof T) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三. 还需要状态转换前、后、错误回调：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> StateMachine&lt;T, State&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    onBefore?: <span class="function">(<span class="params"><span class="keyword">from</span>: State, to: State</span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">    onAfter?: <span class="function">(<span class="params"><span class="keyword">from</span>: State, to: State</span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">    onError?: <span class="function">(<span class="params">code: <span class="built_in">number</span>, reason: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码的基本框架都已准备好，细节可以自行实现。想偷懒可以看这里：<a href="https://github.com/NathanLi/typescript-state-machine" target="_blank" rel="noopener">https://github.com/NathanLi/typescript-state-machine</a></p>
+<h2 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h2><p>首先我们简单介绍了状态机，接下来使用 <code>typescript</code> 进行可用的简单实现。当然状态机远不止于此，比如有的开发者们，为了方便自己或产品同事们，还会自己写一套可视化、可配置的状态机工具。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/25/CocosCreator%20%E4%B8%BB%E5%BE%AA%E7%8E%AF%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/" rel="next" title="CocosCreator 主循环源码浅析">
+                  <i class="fa fa-chevron-left"></i> CocosCreator 主循环源码浅析
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#用-Typescript-写个状态机"><span class="nav-number">1.</span> <span class="nav-text">用 Typescript 写个状态机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#状态机"><span class="nav-number">1.1.</span> <span class="nav-text">状态机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#假设有这样一个需求"><span class="nav-number">1.1.1.</span> <span class="nav-text">假设有这样一个需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用状态机实现这个需求"><span class="nav-number">1.1.2.</span> <span class="nav-text">用状态机实现这个需求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Typescript-实现"><span class="nav-number">1.2.</span> <span class="nav-text">Typescript 实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-State"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. State</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Transition"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. Transition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-初始化条件"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 初始化条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-定义类"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 定义类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完结"><span class="nav-number">1.3.</span> <span class="nav-text">完结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="听榆大叔"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">听榆大叔</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">听榆大叔</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'vqzC413LcYACqmrs8IuSts2Q-gzGzoHsz',
+    appKey: 'PVNNckJPhvjJCcvTSVgcEb4Q',
+    placeholder: "您的看法",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
