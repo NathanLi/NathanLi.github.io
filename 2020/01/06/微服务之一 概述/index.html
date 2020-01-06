@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":"async","transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="微服务一：概述微服务是最近几年大热的话题。不过这倒不是这几年才有东西，而是在零几年就有大公司们实施了，不过那时候不叫这个名字。 一、微服务是什么所谓微服务，就是大的服务器拆分成各种小的服务器，由各种不同功能的小服务组合成对外完整功能的服务器。 为什么需要拆分呢？ 传统型单服务的问题以前，一个产品，一般对应一个后台服务器。随着功能不断迭代，服务器代码越来越复杂，越来越庞大，问题也越来越多： 1. 维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微服务之一 概述">
+<meta property="og:url" content="https:&#x2F;&#x2F;nathanli.cn&#x2F;2020&#x2F;01&#x2F;06&#x2F;%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0&#x2F;index.html">
+<meta property="og:site_name" content="小菜技术路">
+<meta property="og:description" content="微服务一：概述微服务是最近几年大热的话题。不过这倒不是这几年才有东西，而是在零几年就有大公司们实施了，不过那时候不叫这个名字。 一、微服务是什么所谓微服务，就是大的服务器拆分成各种小的服务器，由各种不同功能的小服务组合成对外完整功能的服务器。 为什么需要拆分呢？ 传统型单服务的问题以前，一个产品，一般对应一个后台服务器。随着功能不断迭代，服务器代码越来越复杂，越来越庞大，问题也越来越多： 1. 维">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-06T10:47:21.394Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://nathanli.cn/2020/01/06/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>微服务之一 概述 | 小菜技术路</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小菜技术路</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://nathanli.cn/2020/01/06/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="听榆大叔">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小菜技术路">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          微服务之一 概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-01-06 18:47:09 / 修改时间：18:47:21" itemprop="dateCreated datePublished" datetime="2020-01-06T18:47:09+08:00">2020-01-06</time>
+            </span>
+
+          
+            <span id="/2020/01/06/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0/" class="post-meta-item leancloud_visitors" data-flag-title="微服务之一 概述" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/01/06/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/01/06/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B9%8B%E4%B8%80%20%E6%A6%82%E8%BF%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="微服务一：概述"><a href="#微服务一：概述" class="headerlink" title="微服务一：概述"></a>微服务一：概述</h1><p>微服务是最近几年大热的话题。不过这倒不是这几年才有东西，而是在零几年就有大公司们实施了，不过那时候不叫这个名字。</p>
+<h2 id="一、微服务是什么"><a href="#一、微服务是什么" class="headerlink" title="一、微服务是什么"></a>一、微服务是什么</h2><p>所谓微服务，就是大的服务器拆分成各种小的服务器，由各种不同功能的小服务组合成对外完整功能的服务器。</p>
+<p>为什么需要拆分呢？</p>
+<h3 id="传统型单服务的问题"><a href="#传统型单服务的问题" class="headerlink" title="传统型单服务的问题"></a>传统型单服务的问题</h3><p>以前，一个产品，一般对应一个后台服务器。随着功能不断迭代，服务器代码越来越复杂，越来越庞大，问题也越来越多：</p>
+<h4 id="1-维护成本高"><a href="#1-维护成本高" class="headerlink" title="1. 维护成本高"></a>1. 维护成本高</h4><p>随着时间推移，不断迭代，产品功能增多，模块不断增加，开发人员增减、变化，都在一起进行，这些都会相应增加维护成本。需求增加，可能会造成模块间的交互错综复杂，接下来开发的时间成本必然增加。如果开发时间不足，会引起代码混乱，得不偿失，但这是很常见的情况，不懂行的上司或老板们会说：“明明上个功能不用这么长的时间呀，得加快”。复杂、功能多的产品，代码量也不少，那新入职的开发者想要上手的时间也就会增加，因为老代码不是想动就能动的（国内测试驱动开发可不多），万一造成线上问题呢？</p>
+<p>由于是单系统，当新版本上线时，势必需要重启线上环境。大型系统启动时间是有成本的，也许是几十秒钟，也许是几分钟。也许咱们只是修复部分数据显示错误的问题，但整个系统重启，想想那些正在使用其他功能的用户们，体验肯定不好。</p>
+<h4 id="2-开发成本高"><a href="#2-开发成本高" class="headerlink" title="2. 开发成本高"></a>2. 开发成本高</h4><p>同样地，维护成本增加，开发成本也必然增加。数据库增加表、老表加字段等。 我甚至听说过200多个表、单个表超过 50 多个字段的数字库，想必这开发起来还是蛮有难度的。</p>
+<h4 id="3-系统扩展困难"><a href="#3-系统扩展困难" class="headerlink" title="3. 系统扩展困难"></a>3. 系统扩展困难</h4><p>随着系统的用户增加，系统的压力会随之增大，内存需要更大的，CPU 需要更快的才能系统的需求。这时就需要升级硬件来满足扩展的需求，但硬件升级很容易就到头，而且成本也非常高。所以通过硬件升级，上限是很低的。</p>
+<p>来看看这个搞笑的极端例子：<a href="https://zhuanlan.zhihu.com/p/38973085" target="_blank" rel="noopener">史上最烂的项目：苦撑 12 年，600 多万行代码</a>。</p>
+<p>上面例举了部分单机服务器的问题，咱们再来看看微服务。</p>
+<h3 id="微服务方案"><a href="#微服务方案" class="headerlink" title="微服务方案"></a>微服务方案</h3><p>微服务就是将单个系统根据功能拆分成多个功能完备的小系统。比如，一个电商产品，可以分解成：用户服务器、订单服务器、商家服务器、产品服务器、秒杀服务器、产品推荐服务器等。</p>
+<p>通过拆分后，有不少的优点：</p>
+<h4 id="1-单个小服务器开发成本低"><a href="#1-单个小服务器开发成本低" class="headerlink" title="1. 单个小服务器开发成本低"></a>1. 单个小服务器开发成本低</h4><p>服务经过拆分后，单个服务的功能少，清晰，开发起来当然更简单。新入职的开发也能更简单上手了。</p>
+<h4 id="2-单服务维护成本低"><a href="#2-单服务维护成本低" class="headerlink" title="2. 单服务维护成本低"></a>2. 单服务维护成本低</h4><p>服务小了，维护起来更简单了。由于代码量少、依赖的东西少，启动速度也更快一些。</p>
+<h4 id="3-扩展简单"><a href="#3-扩展简单" class="headerlink" title="3. 扩展简单"></a>3. 扩展简单</h4><p>多个小服务，我们可以布署到多台机器上。甚至可以到达上万台机器。这样系统压力增大时，我们可以通过简单的增加低成本的服务器即可达到扩展的目的。</p>
+<h4 id="4-不限制语言"><a href="#4-不限制语言" class="headerlink" title="4. 不限制语言"></a>4. 不限制语言</h4><p>一般单系统时，我们会采用一种或少数语言开发。现在只有服务器采用统一的通信方式(如 rest api)，就可以不限制语言了。比如有的用 Java，有的用 C++，有的用 Node.js 等，任由工程师们发挥。</p>
+<h2 id="二、微服务的问题"><a href="#二、微服务的问题" class="headerlink" title="二、微服务的问题"></a>二、微服务的问题</h2><p>微服务解决了不少单系统的问题，但同时，它也有不少自身的问题。</p>
+<h3 id="1-服务器间的交互成本"><a href="#1-服务器间的交互成本" class="headerlink" title="1. 服务器间的交互成本"></a>1. 服务器间的交互成本</h3><p>用户功能是多个微服务间交互完成的。比如用户下单，会涉及到用户服务、订单服务、支付服务、仓库服务等。这些交互都是通过网络异步进行的，速度肯定没有单服务器来的快。</p>
+<h3 id="2-服务管理难"><a href="#2-服务管理难" class="headerlink" title="2. 服务管理难"></a>2. 服务管理难</h3><p>如果有非常多个微服务，那就需要有能管理服务管理工具了。想想，如果 有成面上千个服务，纯靠手工一个一个管理，是什么样的场景，运维会哭瞎吧。另外，如果某个服务崩溃了、或者网络线缆被挖断了等问题。</p>
+<h3 id="3-事务成本"><a href="#3-事务成本" class="headerlink" title="3. 事务成本"></a>3. 事务成本</h3><p>以上面例子来说，单系统下，直接开启数据库事务即可。但在多服务下，很难保证所有服务都不出问题。</p>
+<h3 id="4-调试难"><a href="#4-调试难" class="headerlink" title="4. 调试难"></a>4. 调试难</h3><p>由于常有跨服务调用，当出现问题时，我们很难快速定位到问题所在。</p>
+<p>当然还有其它问题和挑战，都是多服务才有的问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>微服务是将单系统拆分成多个服务。一个完成的功能通过多个服务间调用达成目的。其解决了一部分单系统下的问题，但它有多个自身独特的问题，它并不是万能药。如果系统的功能不多，或者只能少数开发者，则不建议采用微服务，或只拆分出少数服务。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/11/11/%E7%94%A8%20Typescript%20%E5%86%99%E4%B8%AA%E7%8A%B6%E6%80%81%E6%9C%BA/" rel="next" title="用 Typescript 写个状态机">
+                  <i class="fa fa-chevron-left"></i> 用 Typescript 写个状态机
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微服务一：概述"><span class="nav-number">1.</span> <span class="nav-text">微服务一：概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、微服务是什么"><span class="nav-number">1.1.</span> <span class="nav-text">一、微服务是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统型单服务的问题"><span class="nav-number">1.1.1.</span> <span class="nav-text">传统型单服务的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-维护成本高"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1. 维护成本高</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-开发成本高"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">2. 开发成本高</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-系统扩展困难"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">3. 系统扩展困难</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微服务方案"><span class="nav-number">1.1.2.</span> <span class="nav-text">微服务方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-单个小服务器开发成本低"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">1. 单个小服务器开发成本低</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-单服务维护成本低"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">2. 单服务维护成本低</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-扩展简单"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">3. 扩展简单</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-不限制语言"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">4. 不限制语言</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、微服务的问题"><span class="nav-number">1.2.</span> <span class="nav-text">二、微服务的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-服务器间的交互成本"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 服务器间的交互成本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务管理难"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 服务管理难</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-事务成本"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 事务成本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-调试难"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 调试难</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="听榆大叔"
+    src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">听榆大叔</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">听榆大叔</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'vqzC413LcYACqmrs8IuSts2Q-gzGzoHsz',
+    appKey: 'PVNNckJPhvjJCcvTSVgcEb4Q',
+    placeholder: "您的看法",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: 'zh-cn' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
